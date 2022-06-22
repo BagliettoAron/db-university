@@ -3,9 +3,19 @@ require_once __DIR__ . "/database.php";
 require_once __DIR__ . "/Department.php";
 
 //prelevo info singolo dipartimento dal database
+//danger sql injection
+// $id = $_GET["id"];
+// $sql = "SELECT * FROM `departments` WHERE `id`= $id; ";
+// $result = $conn->query($sql);
+
+//preparazione dello statment
+$stnt = $conn->prepare("SELECT * FROM `departments` WHERE `id =?`");
+$stnt->bind_param('d', $id);
 $id = $_GET["id"];
-$sql = "SELECT * FROM `departments` WHERE `id`= $id; ";
-$result = $conn->query($sql);
+
+//esecuzione della query
+$stnt->execute();
+$result = $stnt -> get_result();
 
 $departments = [];
 
@@ -34,6 +44,8 @@ if ($result && $result->num_rows > 0) {
 </head>
 <body>
 
+    <a href="index.php">Ritorna all'elenco dei dipartimenti</a>
+
 <?php foreach ($departments as $department) { ?>
 <h1> <?php echo $department->name; ?> </h1>
 <p> <?php echo $department->head_of_department; ?></p>
@@ -48,4 +60,5 @@ if ($result && $result->num_rows > 0) {
 <?php } ?>
     
 </body>
+
 </html>
